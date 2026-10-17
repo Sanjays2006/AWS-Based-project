@@ -1,0 +1,41 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "CloudIdentityApiReadAccess",
+      "Effect": "Allow",
+      "Action": [
+        "sts:GetCallerIdentity",
+        "iam:ListUsers",
+        "iam:ListRoles",
+        "iam:GetUser",
+        "iam:ListAccessKeys",
+        "cloudtrail:LookupEvents",
+        "sns:Publish",
+        "cloudwatch:GetMetricData",
+        "cloudwatch:ListMetrics",
+        "cloudwatch:PutMetricData",
+        "guardduty:ListDetectors",
+        "guardduty:ListFindings",
+        "guardduty:GetFindings"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "CloudIdentityCloudTrailBucketReadOnly",
+      "Effect": "Allow",
+      "Action": [
+        "s3:ListBucket"
+      ],
+      "Resource": "arn:aws:s3:::REPLACE_WITH_CLOUDTRAIL_BUCKET"
+    },
+    {
+      "Sid": "CloudIdentityCloudTrailObjectReadOnly",
+      "Effect": "Allow",
+      "Action": [
+        "s3:GetObject"
+      ],
+      "Resource": "arn:aws:s3:::REPLACE_WITH_CLOUDTRAIL_BUCKET/*"
+    }
+  ]
+}

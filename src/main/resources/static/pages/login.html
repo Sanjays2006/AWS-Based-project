@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise Security Portal | Cloud Identity System</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="/css/variables.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="stylesheet" href="/css/components.css">
+    <link rel="stylesheet" href="/css/login.css">
+</head>
+<body class="login-page">
+
+    <!-- Background Elements -->
+    <canvas id="bgCanvas" class="bg-canvas"></canvas>
+    <div class="bg-orb bg-orb-1"></div>
+    <div class="bg-orb bg-orb-2"></div>
+
+    <!-- Theme Toggle Switch -->
+    <button type="button" id="themeToggleBtn" class="theme-toggle-btn" title="Toggle Theme" aria-label="Toggle Dark/Light Theme">
+        <i class="bi bi-sun-fill"></i>
+    </button>
+
+    <!-- Main Glassmorphism Login Container -->
+    <div class="login-wrapper">
+        <div class="login-card">
+            
+            <!-- Brand Header -->
+            <div class="brand-header">
+                <div class="brand-icon-wrapper">
+                    <i class="bi bi-shield-lock-fill"></i>
+                </div>
+                <h1 class="brand-title">Cloud Identity System</h1>
+                <p class="brand-subtitle">Enterprise Cloud Security Platform</p>
+            </div>
+
+            <!-- Dynamic Alert Box -->
+            <div id="alertBox" class="alert-box">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                <span id="alertMessage">Authentication error occurred.</span>
+            </div>
+
+            <!-- Login Form -->
+            <form id="loginForm" autocomplete="on">
+                
+                <!-- Username / Email Field -->
+                <div class="form-field">
+                    <div class="input-with-icon">
+                        <input type="text" id="username" class="floating-input" placeholder=" " required autocomplete="username">
+                        <label for="username" class="floating-label">Username or Email</label>
+                        <i class="bi bi-person field-icon"></i>
+                    </div>
+                </div>
+
+                <!-- Password Field -->
+                <div class="form-field">
+                    <div class="input-with-icon">
+                        <input type="password" id="password" class="floating-input" placeholder=" " required autocomplete="current-password">
+                        <label for="password" class="floating-label">Password</label>
+                        <i class="bi bi-key field-icon"></i>
+                        <button type="button" id="togglePasswordBtn" class="toggle-pwd-btn" title="Toggle Password Visibility" aria-label="Toggle Password Visibility">
+                            <i class="bi bi-eye" id="pwdIcon"></i>
+                        </button>
+                    </div>
+
+                    <!-- Caps Lock Warning -->
+                    <div id="capsLockWarning" class="caps-lock-warning">
+                        <i class="bi bi-exclamation-circle-fill"></i> Caps Lock is ON
+                    </div>
+
+                    <!-- Password Strength Meter -->
+                    <div id="strengthBarWrapper" class="strength-bar-wrapper">
+                        <div id="strengthBar" class="strength-bar"></div>
+                    </div>
+                    <div id="strengthLabel" class="strength-label">Password Strength</div>
+                </div>
+
+                <!-- Optional MFA Code Input -->
+                <div class="form-field" id="mfaGroup" style="display: none;">
+                    <div class="input-with-icon">
+                        <input type="text" id="mfaCode" class="floating-input" placeholder=" " placeholder="6-digit code">
+                        <label for="mfaCode" class="floating-label">MFA Security Code (6-digits)</label>
+                        <i class="bi bi-shield-check field-icon"></i>
+                    </div>
+                </div>
+
+                <!-- Options Row -->
+                <div class="options-row">
+                    <label class="remember-label">
+                        <input type="checkbox" id="rememberMe">
+                        <span>Remember Me</span>
+                    </label>
+                    <a href="#" id="forgotPasswordLink" class="forgot-link">Forgot Password?</a>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" id="submitBtn" class="submit-btn">
+                    <span class="btn-spinner"></span>
+                    <span class="btn-text">Sign In</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Forgot Password Modal -->
+    <div id="forgotModal" class="modal-overlay">
+        <div class="modal-card">
+            <h3 style="margin-top: 0;">Password Reset Request</h3>
+            <p style="font-size: 0.85rem; color: var(--text-sub);">Contact your System Administrator or Security Operations Center (SOC) to issue a password reset token.</p>
+            <div style="text-align: right; margin-top: 20px;">
+                <button type="button" id="closeForgotBtn" class="submit-btn" style="width: auto; padding: 8px 16px;">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden Dev Diagnostics Trigger (Part 6) -->
+    <button type="button" id="devDiagTrigger" class="dev-diag-trigger">
+        <i class="bi bi-cpu-fill"></i> DEV DIAGNOSTICS
+    </button>
+
+    <!-- Hidden Dev Diagnostics Drawer -->
+    <div id="devDiagDrawer" class="dev-diag-drawer">
+        <div style="font-weight: 700; margin-bottom: 10px; color: #f8fafc;">⚡ Development Environment System Diagnostics</div>
+        <div class="diag-grid">
+            <div class="diag-item">Backend Status: <span id="diagBackend">CHECKING...</span></div>
+            <div class="diag-item">Database (PostgreSQL): <span id="diagDb">CHECKING...</span></div>
+            <div class="diag-item">JWT Authentication: <span id="diagJwt">ACTIVE</span></div>
+            <div class="diag-item">AWS Service SDK: <span id="diagAws">READY</span></div>
+            <div class="diag-item">System Version: <span id="diagVer">v1.0.0</span></div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/js/api.js"></script>
+    <script src="/js/components.js"></script>
+    <script src="/js/login.js"></script>
+</body>
+</html>

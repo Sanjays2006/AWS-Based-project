@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Behavior Analytics | Cloud Identity</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="/css/variables.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="stylesheet" href="/css/sidebar.css">
+    <link rel="stylesheet" href="/css/components.css">
+    <link rel="stylesheet" href="/css/dashboard.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <a href="/pages/dashboard.html" class="sidebar-logo">
+                <div class="sidebar-logo-icon"><i class="bi bi-shield-lock-fill"></i></div>
+                <div class="sidebar-logo-text">
+                    <span class="sidebar-logo-title">CloudIdentity</span>
+                    <span class="sidebar-logo-subtitle">Fingerprint Engine</span>
+                </div>
+            </a>
+            <nav class="sidebar-nav">
+                <div class="nav-section-title">Overview</div>
+                <a href="/pages/dashboard.html" class="nav-item">
+                    <i class="bi bi-grid-1x2-fill"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="/pages/investigation.html" class="nav-item">
+                    <i class="bi bi-search-heart"></i>
+                    <span>Investigation Console</span>
+                </a>
+                <div class="nav-section-title">Security & Risk</div>
+                <a href="/pages/anomalies.html" class="nav-item">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    <span>Anomalies</span>
+                </a>
+                <a href="/pages/identities.html" class="nav-item">
+                    <i class="bi bi-person-badge-fill"></i>
+                    <span>IAM Identities</span>
+                </a>
+                <a href="/pages/rules.html" class="nav-item">
+                    <i class="bi bi-sliders"></i>
+                    <span>Risk Rules</span>
+                </a>
+                <div class="nav-section-title">Demo & Config</div>
+                <a href="/pages/simulation.html" class="nav-item">
+                    <i class="bi bi-play-circle-fill"></i>
+                    <span>Attack Simulation</span>
+                </a>
+                <a href="/pages/policies.html" class="nav-item">
+                    <i class="bi bi-shield-check"></i>
+                    <span>Response Policies</span>
+                </a>
+                <a href="/pages/aws-accounts.html" class="nav-item">
+                    <i class="bi bi-cloud-check-fill"></i>
+                    <span>AWS Accounts</span>
+                </a>
+                <a href="/pages/analytics.html" class="nav-item active">
+                    <i class="bi bi-graph-up-arrow"></i>
+                    <span>Analytics</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="topbar">
+                <div class="topbar-title">
+                    <h1>Behavior Analytics & Risk Trends</h1>
+                    <p class="subtitle">Behavioral drift analysis and top triggering AWS CloudTrail API metrics</p>
+                </div>
+                <div class="topbar-actions">
+                    <button class="btn btn-outline-primary" onclick="exportCsvReport()"><i class="bi bi-download me-1"></i> Export Threat CSV</button>
+                </div>
+            </header>
+
+            <div class="content-wrapper">
+                <div class="glass-card mb-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5><i class="bi bi-bar-chart-line-fill me-2"></i>Top Risky AWS CloudTrail APIs</h5>
+                    </div>
+                    <div class="table-responsive mt-3">
+                        <table class="table table-dark table-hover align-middle">
+                            <thead>
+                                <tr>
+                                    <th>AWS Service</th>
+                                    <th>API Call Name</th>
+                                    <th>Risk Category</th>
+                                    <th>Trigger Count</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody id="topApisTableBody">
+                                <!-- Loaded dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', loadAnalytics);
+
+        async function loadAnalytics() {
+            try {
+                const topApis = await ApiService.request('/analytics/top-risky-apis');
+                const tbody = document.getElementById('topApisTableBody');
+                tbody.innerHTML = topApis.map(a => `
+                    <tr>
+                        <td><span class="badge bg-secondary">${a.awsService}</span></td>
+                        <td><code class="text-warning">${a.apiCallName}</code></td>
+                        <td><span class="badge ${a.riskCategory === 'PRIVILEGE' ? 'bg-danger' : 'bg-info'}">${a.riskCategory}</span></td>
+                        <td><strong>${a.triggerCount}</strong></td>
+                        <td class="text-muted small">${a.description}</td>
+                    </tr>
+                `).join('');
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function exportCsvReport() {
+            try {
+                const token = ApiService.getToken();
+                const response = await fetch('/api/v1/reports/export/csv', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ reportType: 'DAILY_SUMMARY', format: 'CSV' })
+                });
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `cloudidentity_report_${Date.now()}.csv`;
+                a.click();
+            } catch (err) {
+                alert('Export failed: ' + err.message);
+            }
+        }
+    </script>
+</body>
+</html>

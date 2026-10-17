@@ -1,0 +1,91 @@
+/* ============================================================
+   CLOUD IDENTITY FINGERPRINTING SYSTEM — CSS Variables
+   Design System: Deep Space Dark Theme with Neon Accents
+   ============================================================ */
+
+:root {
+    /* === Background Layers === */
+    --bg-primary:       #060d1f;
+    --bg-secondary:     #0b1628;
+    --bg-card:          rgba(11, 22, 40, 0.92);
+    --bg-card-hover:    rgba(20, 35, 60, 0.95);
+    --bg-input:         rgba(15, 25, 50, 0.80);
+    --bg-sidebar:       rgba(6, 13, 31, 0.98);
+    --bg-modal:         rgba(8, 16, 32, 0.98);
+    --bg-tooltip:       #0d1e3a;
+    --bg-dropdown:      #0d1e3a;
+
+    /* === Accent Colors === */
+    --accent-primary:   #3b82f6;
+    --accent-secondary: #6366f1;
+    --accent-cyan:      #06b6d4;
+    --accent-green:     #10b981;
+    --accent-warning:   #f59e0b;
+    --accent-danger:    #ef4444;
+    --accent-critical:  #dc2626;
+    --accent-purple:    #8b5cf6;
+
+    /* === Glow Effects === */
+    --glow-primary:     rgba(59, 130, 246, 0.35);
+    --glow-secondary:   rgba(99, 102, 241, 0.35);
+    --glow-green:       rgba(16, 185, 129, 0.35);
+    --glow-danger:      rgba(239, 68, 68, 0.35);
+    --glow-critical:    rgba(220, 38, 38, 0.5);
+
+    /* === Border === */
+    --border-color:     rgba(148, 163, 184, 0.10);
+    --border-focus:     rgba(59, 130, 246, 0.50);
+    --border-card:      rgba(59, 130, 246, 0.12);
+
+    /* === Text === */
+    --text-primary:     #f1f5f9;
+    --text-secondary:   #94a3b8;
+    --text-muted:       #64748b;
+    --text-accent:      #3b82f6;
+
+    /* === Risk Levels === */
+    --risk-critical:    #dc2626;
+    --risk-high:        #f97316;
+    --risk-medium:      #eab308;
+    --risk-low:         #22c55e;
+
+    /* === Gradients === */
+    --gradient-primary:   linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
+    --gradient-dark:      linear-gradient(135deg, #0b1628 0%, #060d1f 100%);
+    --gradient-card:      linear-gradient(145deg, rgba(15,25,50,0.85) 0%, rgba(8,15,35,0.90) 100%);
+    --gradient-sidebar:   linear-gradient(180deg, #060d1f 0%, #040a18 100%);
+    --gradient-critical:  linear-gradient(135deg, #7f1d1d 0%, #450a0a 100%);
+    --gradient-high:      linear-gradient(135deg, #7c2d12 0%, #431407 100%);
+    --gradient-medium:    linear-gradient(135deg, #713f12 0%, #3b1e06 100%);
+    --gradient-success:   linear-gradient(135deg, #064e3b 0%, #022c22 100%);
+
+    /* === Dimensions === */
+    --sidebar-width:    260px;
+    --sidebar-collapsed: 72px;
+    --navbar-height:    64px;
+    --border-radius:    12px;
+    --border-radius-sm: 8px;
+    --border-radius-lg: 16px;
+    --border-radius-xl: 20px;
+    --border-radius-round: 50%;
+
+    /* === Shadows === */
+    --shadow-card:      0 4px 24px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255,255,255,0.04);
+    --shadow-card-hover: 0 8px 40px rgba(0, 0, 0, 0.5), 0 0 20px var(--glow-primary);
+    --shadow-modal:     0 24px 80px rgba(0, 0, 0, 0.7);
+    --shadow-dropdown:  0 8px 32px rgba(0, 0, 0, 0.5);
+    --shadow-button:    0 4px 16px var(--glow-primary);
+    --shadow-input-focus: 0 0 0 3px var(--glow-primary);
+
+    /* === Transitions === */
+    --transition-fast:  all 0.15s ease;
+    --transition-base:  all 0.25s ease;
+    --transition-slow:  all 0.40s ease;
+
+    /* === Z-Index === */
+    --z-sidebar:  100;
+    --z-navbar:   200;
+    --z-dropdown: 300;
+    --z-modal:    400;
+    --z-toast:    500;
+}

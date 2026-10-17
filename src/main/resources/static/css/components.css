@@ -1,0 +1,248 @@
+/* ============================================================
+   MODAL & TOAST NOTIFICATION STYLES
+   ============================================================ */
+
+/* === Modal Overlay === */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(6, 13, 31, 0.80);
+    backdrop-filter: blur(8px);
+    z-index: var(--z-modal);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+
+.modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal {
+    background: var(--bg-modal);
+    border: 1px solid var(--border-card);
+    border-radius: var(--border-radius-xl);
+    padding: 0;
+    width: 100%;
+    max-width: 560px;
+    box-shadow: var(--shadow-modal);
+    transform: scale(0.94) translateY(20px);
+    transition: transform 0.25s ease;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.modal-overlay.active .modal {
+    transform: scale(1) translateY(0);
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 22px 24px;
+    border-bottom: 1px solid var(--border-color);
+    flex-shrink: 0;
+}
+
+.modal-title {
+    font-size: 1.0625rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.modal-close {
+    width: 32px; height: 32px;
+    border-radius: var(--border-radius-sm);
+    background: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.875rem;
+    transition: var(--transition-fast);
+}
+
+.modal-close:hover {
+    background: rgba(239, 68, 68, 0.12);
+    border-color: rgba(239, 68, 68, 0.3);
+    color: var(--accent-danger);
+}
+
+.modal-body {
+    padding: 24px;
+    flex: 1;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-card) transparent;
+}
+
+.modal-footer {
+    padding: 16px 24px;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+/* Modal Size Variants */
+.modal.modal-sm { max-width: 420px; }
+.modal.modal-lg { max-width: 720px; }
+.modal.modal-xl { max-width: 960px; }
+
+/* === Toast Notifications === */
+.toast-container {
+    position: fixed;
+    bottom: 24px; right: 24px;
+    z-index: var(--z-toast);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 380px;
+}
+
+.toast {
+    background: rgba(11, 22, 40, 0.97);
+    border: 1px solid var(--border-card);
+    border-radius: var(--border-radius);
+    padding: 14px 16px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    animation: slideInRight 0.35s ease-out;
+    min-width: 300px;
+    backdrop-filter: blur(20px);
+}
+
+@keyframes slideInRight {
+    from { opacity: 0; transform: translateX(40px); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+
+.toast.slide-out {
+    animation: slideOutRight 0.3s ease-in forwards;
+}
+
+@keyframes slideOutRight {
+    from { opacity: 1; transform: translateX(0); }
+    to   { opacity: 0; transform: translateX(40px); }
+}
+
+.toast-icon {
+    width: 32px; height: 32px;
+    border-radius: var(--border-radius-sm);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    font-size: 0.875rem;
+}
+
+.toast.success .toast-icon  { background: rgba(16,185,129,0.15); color: var(--accent-green); }
+.toast.error   .toast-icon  { background: rgba(239,68,68,0.15);  color: var(--accent-danger); }
+.toast.warning .toast-icon  { background: rgba(245,158,11,0.15); color: var(--accent-warning); }
+.toast.info    .toast-icon  { background: rgba(59,130,246,0.15); color: var(--accent-primary); }
+
+.toast.success { border-left: 3px solid var(--accent-green); }
+.toast.error   { border-left: 3px solid var(--accent-danger); }
+.toast.warning { border-left: 3px solid var(--accent-warning); }
+.toast.info    { border-left: 3px solid var(--accent-primary); }
+
+.toast-content { flex: 1; }
+
+.toast-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 2px;
+}
+
+.toast-message {
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+    line-height: 1.4;
+}
+
+.toast-close {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 0.875rem;
+    padding: 2px;
+    flex-shrink: 0;
+    transition: var(--transition-fast);
+}
+
+.toast-close:hover { color: var(--text-primary); }
+
+/* === Dropdown === */
+.dropdown {
+    position: relative;
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: calc(100% + 8px); right: 0;
+    background: var(--bg-dropdown);
+    border: 1px solid var(--border-card);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-dropdown);
+    min-width: 200px;
+    padding: 6px;
+    z-index: var(--z-dropdown);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px);
+    transition: all 0.2s ease;
+}
+
+.dropdown-menu.open {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 12px;
+    border-radius: var(--border-radius-sm);
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: var(--transition-fast);
+    text-decoration: none;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+}
+
+.dropdown-item:hover {
+    background: rgba(59, 130, 246, 0.08);
+    color: var(--text-primary);
+}
+
+.dropdown-item.danger:hover {
+    background: rgba(239, 68, 68, 0.10);
+    color: var(--accent-danger);
+}
+
+.dropdown-divider {
+    height: 1px;
+    background: var(--border-color);
+    margin: 4px 0;
+}

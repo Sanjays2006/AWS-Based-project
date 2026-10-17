@@ -1,0 +1,285 @@
+/* ============================================================
+   DASHBOARD, CHARTS, HEATMAP, RISK METER STYLES
+   ============================================================ */
+
+/* === Risk Score Meter === */
+.risk-meter-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px;
+}
+
+.risk-meter {
+    position: relative;
+    width: 180px; height: 90px;
+    margin-bottom: 20px;
+}
+
+.risk-meter svg { width: 100%; overflow: visible; }
+
+.risk-meter-track {
+    fill: none;
+    stroke: rgba(148, 163, 184, 0.10);
+    stroke-width: 16;
+    stroke-linecap: round;
+}
+
+.risk-meter-fill {
+    fill: none;
+    stroke-width: 16;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.risk-meter-fill.LOW      { stroke: var(--risk-low);    }
+.risk-meter-fill.MEDIUM   { stroke: var(--risk-medium); }
+.risk-meter-fill.HIGH     { stroke: var(--risk-high);   }
+.risk-meter-fill.CRITICAL { stroke: var(--risk-critical); filter: drop-shadow(0 0 6px var(--risk-critical)); }
+
+.risk-meter-center {
+    position: absolute;
+    bottom: -4px; left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+}
+
+.risk-score-value {
+    font-size: 2.5rem;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    line-height: 1;
+}
+
+.risk-score-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+/* === Chart Containers === */
+.chart-container {
+    position: relative;
+    height: 300px;
+    width: 100%;
+}
+
+.chart-container.sm { height: 220px; }
+.chart-container.lg { height: 380px; }
+
+/* === Heatmap Calendar === */
+.heatmap-container {
+    overflow-x: auto;
+    padding-bottom: 8px;
+}
+
+.heatmap-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.heatmap-row {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.heatmap-label {
+    width: 32px;
+    font-size: 0.6875rem;
+    color: var(--text-muted);
+    text-align: right;
+    flex-shrink: 0;
+}
+
+.heatmap-cell {
+    width: 28px; height: 28px;
+    border-radius: 4px;
+    background: rgba(59, 130, 246, 0.05);
+    border: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: var(--transition-fast);
+    position: relative;
+}
+
+.heatmap-cell:hover {
+    border-color: var(--accent-primary);
+    transform: scale(1.15);
+    z-index: 2;
+}
+
+.heatmap-cell[data-level="1"] { background: rgba(59, 130, 246, 0.18); }
+.heatmap-cell[data-level="2"] { background: rgba(59, 130, 246, 0.38); }
+.heatmap-cell[data-level="3"] { background: rgba(59, 130, 246, 0.58); }
+.heatmap-cell[data-level="4"] { background: rgba(59, 130, 246, 0.80); border-color: var(--accent-primary); }
+
+.heatmap-legend {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 12px;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.heatmap-legend-colors {
+    display: flex;
+    gap: 3px;
+}
+
+.heatmap-legend-cell {
+    width: 12px; height: 12px;
+    border-radius: 2px;
+}
+
+/* === World Map Container === */
+#worldMap {
+    height: 380px;
+    border-radius: var(--border-radius);
+    z-index: 1;
+    background: #0a1624;
+}
+
+.leaflet-container {
+    background: #0a1624 !important;
+    border-radius: var(--border-radius);
+}
+
+/* === Timeline Component === */
+.timeline {
+    position: relative;
+    padding-left: 32px;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 11px; top: 0; bottom: 0;
+    width: 1px;
+    background: var(--border-color);
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 24px;
+}
+
+.timeline-dot {
+    position: absolute;
+    left: -28px; top: 4px;
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.6rem;
+    border: 2px solid var(--bg-primary);
+}
+
+.timeline-dot.CRITICAL { background: var(--risk-critical); box-shadow: 0 0 10px var(--glow-critical); }
+.timeline-dot.HIGH     { background: var(--risk-high); }
+.timeline-dot.MEDIUM   { background: var(--risk-medium); }
+.timeline-dot.LOW      { background: var(--risk-low); }
+.timeline-dot.info     { background: var(--accent-primary); }
+
+.timeline-time {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+}
+
+.timeline-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
+.timeline-desc {
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+    line-height: 1.4;
+}
+
+/* === Score Gauge in Identity Cards === */
+.score-bar-track {
+    height: 6px;
+    background: rgba(148, 163, 184, 0.12);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-top: 10px;
+}
+
+.score-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 1s ease-out;
+}
+
+.score-bar-fill.LOW      { background: var(--risk-low); }
+.score-bar-fill.MEDIUM   { background: linear-gradient(90deg, var(--risk-medium), var(--risk-high)); }
+.score-bar-fill.HIGH     { background: linear-gradient(90deg, var(--risk-high), var(--risk-critical)); }
+.score-bar-fill.CRITICAL { background: var(--risk-critical); box-shadow: 0 0 8px var(--glow-critical); }
+
+/* === Fingerprint Dimension Bars === */
+.fingerprint-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.dimension-item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.dimension-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.dimension-value {
+    font-size: 0.9375rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.dimension-bar {
+    height: 4px;
+    background: rgba(148, 163, 184, 0.10);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.dimension-bar-fill {
+    height: 100%;
+    background: var(--gradient-primary);
+    border-radius: 2px;
+    transition: width 1s ease-out;
+}
+
+/* === Tag Chips === */
+.tag-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 10px;
+    background: rgba(59, 130, 246, 0.10);
+    border: 1px solid rgba(59, 130, 246, 0.20);
+    border-radius: 20px;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    white-space: nowrap;
+}
+
+.tag-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}

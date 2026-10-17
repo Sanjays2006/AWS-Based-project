@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security Dashboard | Cloud Identity Behavior Fingerprinting</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <link rel="stylesheet" href="/css/variables.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="stylesheet" href="/css/sidebar.css">
+    <link rel="stylesheet" href="/css/components.css">
+    <link rel="stylesheet" href="/css/dashboard.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <a href="/pages/dashboard.html" class="sidebar-logo">
+                <div class="sidebar-logo-icon"><i class="bi bi-shield-lock-fill"></i></div>
+                <div class="sidebar-logo-text">
+                    <span class="sidebar-logo-title">CloudIdentity</span>
+                    <span class="sidebar-logo-subtitle">Fingerprint Engine</span>
+                </div>
+            </a>
+
+            <nav class="sidebar-nav">
+                <div class="nav-section-title">Overview</div>
+                <a href="/pages/dashboard.html" class="nav-item active">
+                    <i class="bi bi-grid-1x2-fill"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="/pages/investigation.html" class="nav-item">
+                    <i class="bi bi-search-heart"></i>
+                    <span>Investigation Console</span>
+                </a>
+
+                <div class="nav-section-title">Security & Risk</div>
+                <a href="/pages/anomalies.html" class="nav-item">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    <span>Anomalies & Alerts</span>
+                </a>
+                <a href="/pages/identities.html" class="nav-item">
+                    <i class="bi bi-person-badge-fill"></i>
+                    <span>IAM Identities</span>
+                </a>
+                <a href="/pages/rules.html" class="nav-item">
+                    <i class="bi bi-sliders"></i>
+                    <span>Risk Rules</span>
+                </a>
+
+                <div class="nav-section-title">Demo & Config</div>
+                <a href="/pages/simulation.html" class="nav-item">
+                    <i class="bi bi-play-circle-fill"></i>
+                    <span>Attack Simulation</span>
+                </a>
+                <a href="/pages/policies.html" class="nav-item">
+                    <i class="bi bi-shield-check"></i>
+                    <span>Response Policies</span>
+                </a>
+                <a href="/pages/aws-accounts.html" class="nav-item">
+                    <i class="bi bi-cloud-check-fill"></i>
+                    <span>AWS Accounts</span>
+                </a>
+                <a href="/pages/analytics.html" class="nav-item">
+                    <i class="bi bi-graph-up-arrow"></i>
+                    <span>Analytics</span>
+                </a>
+
+                <div class="nav-section-title">Logs & Self Service</div>
+                <a href="/pages/activity-logs.html" class="nav-item">
+                    <i class="bi bi-journal-code"></i>
+                    <span>CloudTrail Logs</span>
+                </a>
+                <a href="/pages/self-service.html" class="nav-item">
+                    <i class="bi bi-person-circle"></i>
+                    <span>Self-Service Portal</span>
+                </a>
+                <a href="/pages/users.html" class="nav-item admin-only">
+                    <i class="bi bi-people-fill"></i>
+                    <span>User Management</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="sidebar-user" onclick="handleLogout()">
+                    <div class="sidebar-avatar" id="navAvatar">A</div>
+                    <div style="flex:1; overflow:hidden;">
+                        <div class="sidebar-username" id="navUsername">Admin</div>
+                        <div class="sidebar-role" id="navRole">ADMIN</div>
+                    </div>
+                    <i class="bi bi-box-arrow-right" style="color: var(--text-muted);"></i>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <div class="main-wrapper">
+            <header class="navbar">
+                <div style="display:flex; align-items:center; gap:12px;">
+                    <button class="sidebar-toggle" id="sidebarToggle"><i class="bi bi-list"></i></button>
+                    <div class="navbar-breadcrumb">
+                        <span>CloudIdentity</span> / <span class="current">Dashboard</span>
+                    </div>
+                </div>
+
+                <div class="navbar-actions">
+                    <a href="/pages/self-service.html" class="navbar-btn" title="Notifications">
+                        <i class="bi bi-bell"></i>
+                        <span class="notification-badge" id="notifBadge" style="display:none;">0</span>
+                    </a>
+                </div>
+            </header>
+
+            <main class="main-content">
+                <div class="page-header">
+                    <div>
+                        <h1 class="page-title">Behavioral Fingerprinting Dashboard</h1>
+                        <p class="page-subtitle">Real-time AWS IAM identity behavior vectors, threat scores, and spatial analytics.</p>
+                    </div>
+                    <button class="btn btn-secondary" onclick="loadDashboardData()">
+                        <i class="bi bi-arrow-clockwise"></i> Refresh Data
+                    </button>
+                </div>
+
+                <!-- KPI Metric Cards -->
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-icon"><i class="bi bi-person-vcard"></i></div>
+                        <div class="kpi-value" id="kpiIdentities">0</div>
+                        <div class="kpi-label">Monitored IAM Identities</div>
+                    </div>
+
+                    <div class="kpi-card critical">
+                        <div class="kpi-icon" style="background: rgba(220, 38, 38, 0.15); color: var(--risk-critical);">
+                            <i class="bi bi-shield-exclamation"></i>
+                        </div>
+                        <div class="kpi-value" id="kpiCritical">0</div>
+                        <div class="kpi-label">Critical Risk Identities</div>
+                    </div>
+
+                    <div class="kpi-card high">
+                        <div class="kpi-icon" style="background: rgba(249, 115, 22, 0.15); color: var(--risk-high);">
+                            <i class="bi bi-exclamation-octagon"></i>
+                        </div>
+                        <div class="kpi-value" id="kpiUnresolved">0</div>
+                        <div class="kpi-label">Unresolved Threat Alerts</div>
+                    </div>
+
+                    <div class="kpi-card success">
+                        <div class="kpi-icon" style="background: rgba(16, 185, 129, 0.15); color: var(--risk-low);">
+                            <i class="bi bi-lightning-charge"></i>
+                        </div>
+                        <div class="kpi-value" id="kpiAutomated">0</div>
+                        <div class="kpi-label">Automated Mitigation Actions</div>
+                    </div>
+                </div>
+
+                <!-- Main Grid: Risk Chart & World Map -->
+                <div class="grid-2" style="margin-bottom: 24px;">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title"><i class="bi bi-graph-up-arrow"></i> 30-Day Risk Score Trend</div>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="riskTrendChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title"><i class="bi bi-globe-americas"></i> Geographical Access Map</div>
+                        </div>
+                        <div id="worldMap"></div>
+                    </div>
+                </div>
+
+                <!-- Secondary Grid: Heatmap & Recent Anomalies -->
+                <div class="grid-2">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title"><i class="bi bi-clock-history"></i> Weekly Activity Heatmap</div>
+                        </div>
+                        <div class="heatmap-container">
+                            <div id="heatmapGrid" class="heatmap-grid"></div>
+                        </div>
+                        <div class="heatmap-legend">
+                            <span>Low</span>
+                            <div class="heatmap-legend-colors">
+                                <div class="heatmap-legend-cell" style="background: rgba(59, 130, 246, 0.05);"></div>
+                                <div class="heatmap-legend-cell" style="background: rgba(59, 130, 246, 0.18);"></div>
+                                <div class="heatmap-legend-cell" style="background: rgba(59, 130, 246, 0.38);"></div>
+                                <div class="heatmap-legend-cell" style="background: rgba(59, 130, 246, 0.58);"></div>
+                                <div class="heatmap-legend-cell" style="background: rgba(59, 130, 246, 0.80);"></div>
+                            </div>
+                            <span>High Volume</span>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title"><i class="bi bi-bell-fill"></i> Unresolved Anomalies</div>
+                            <a href="/pages/anomalies.html" class="btn btn-ghost btn-sm">View All</a>
+                        </div>
+                        <div class="data-table-wrapper">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Severity</th>
+                                        <th>Identity</th>
+                                        <th>Anomaly Type</th>
+                                        <th>Time</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recentAnomaliesTable">
+                                    <tr><td colspan="4" class="text-center">Loading anomaly events...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="/js/api.js"></script>
+    <script src="/js/components.js"></script>
+    <script src="/js/app.js"></script>
+    <script>
+        let mapInstance = null;
+        let chartInstance = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initWorldMap();
+            loadDashboardData();
+        });
+
+        function initWorldMap() {
+            mapInstance = L.map('worldMap', { zoomControl: false }).setView([20, 0], 2);
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                maxZoom: 18,
+                attribution: '&copy; CartoDB'
+            }).addTo(mapInstance);
+        }
+
+        async function loadDashboardData() {
+            try {
+                UIUtils.showLoader();
+                const [summary, heatmap, worldMap, riskTrend] = await Promise.all([
+                    ApiService.getDashboardSummary(),
+                    ApiService.getHeatmapData(),
+                    ApiService.getWorldMapData(),
+                    ApiService.getRiskTrend(30)
+                ]);
+
+                // 1. Populate KPIs
+                document.getElementById('kpiIdentities').textContent = summary.totalMonitoredIdentities;
+                document.getElementById('kpiCritical').textContent = summary.criticalRiskCount;
+                document.getElementById('kpiUnresolved').textContent = summary.totalUnresolvedAlerts;
+                document.getElementById('kpiAutomated').textContent = summary.dailyThreatSummary.automatedResponsesExecutedToday;
+
+                // 2. Populate Recent Anomalies Table
+                const tableBody = document.getElementById('recentAnomaliesTable');
+                if (summary.recentAnomalies && summary.recentAnomalies.length > 0) {
+                    tableBody.innerHTML = summary.recentAnomalies.map(item => `
+                        <tr>
+                            <td>${UIUtils.formatRiskBadge(item.severity)}</td>
+                            <td><strong>${item.identityName}</strong></td>
+                            <td>${item.anomalyType}</td>
+                            <td>${UIUtils.formatDate(item.createdAt)}</td>
+                        </tr>
+                    `).join('');
+                } else {
+                    tableBody.innerHTML = '<tr><td colspan="4"><div class="empty-state"><p>No unresolved anomalies detected.</p></div></td></tr>';
+                }
+
+                // 3. Render Risk Trend Chart
+                renderRiskTrendChart(riskTrend.points);
+
+                // 4. Render World Map Markers
+                renderMapMarkers(worldMap.markers);
+
+                // 5. Render Heatmap
+                renderHeatmap(heatmap.points);
+
+            } catch (err) {
+                Toast.error('Failed to load dashboard metrics: ' + err.message);
+            } finally {
+                UIUtils.hideLoader();
+            }
+        }
+
+        function renderRiskTrendChart(points) {
+            const ctx = document.getElementById('riskTrendChart').getContext('2d');
+            if (chartInstance) chartInstance.destroy();
+
+            const labels = points.map(p => p.date);
+            const scores = points.map(p => p.averageScore);
+
+            chartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Avg Identity Risk Score',
+                        data: scores,
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { color: 'rgba(148, 163, 184, 0.05)' }, ticks: { color: '#64748b' } },
+                        y: { min: 0, max: 100, grid: { color: 'rgba(148, 163, 184, 0.05)' }, ticks: { color: '#64748b' } }
+                    }
+                }
+            });
+        }
+
+        function renderMapMarkers(markers) {
+            if (!mapInstance) return;
+            markers.forEach(m => {
+                const color = m.hasAnomaly ? '#ef4444' : '#3b82f6';
+                const circle = L.circleMarker([m.latitude, m.longitude], {
+                    radius: Math.min(15, Math.max(6, m.count * 2)),
+                    fillColor: color,
+                    color: color,
+                    weight: 1,
+                    opacity: 0.8,
+                    fillOpacity: 0.5
+                }).addTo(mapInstance);
+
+                circle.bindPopup(`<b>${m.city}, ${m.countryName}</b><br>Login Attempts: ${m.count}`);
+            });
+        }
+
+        function renderHeatmap(points) {
+            const container = document.getElementById('heatmapGrid');
+            const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+            let html = '';
+
+            for (let d = 1; d <= 7; d++) {
+                html += `<div class="heatmap-row"><div class="heatmap-label">${days[d-1]}</div>`;
+                for (let h = 0; h < 24; h++) {
+                    const match = points.find(p => p.dayOfWeek === d && p.hourOfDay === h);
+                    const val = match ? match.value : 0;
+                    let level = 0;
+                    if (val > 20) level = 4;
+                    else if (val > 10) level = 3;
+                    else if (val > 5) level = 2;
+                    else if (val > 0) level = 1;
+
+                    html += `<div class="heatmap-cell" data-level="${level}" title="${days[d-1]} ${h}:00 - ${val} logins"></div>`;
+                }
+                html += '</div>';
+            }
+            container.innerHTML = html;
+        }
+    </script>
+</body>
+</html>

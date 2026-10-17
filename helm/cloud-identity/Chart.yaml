@@ -1,0 +1,9 @@
+apiVersion: v2
+name: cloud-identity
+description: Helm Chart for Cloud Identity Behavior Fingerprinting System
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
+maintainers:
+  - name: Cloud Security Architecture Team
+    email: security@cloudidentity.local

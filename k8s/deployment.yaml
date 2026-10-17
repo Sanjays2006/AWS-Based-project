@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cloud-identity-app
+  namespace: cloud-identity
+  labels:
+    app.kubernetes.io/name: cloud-identity-app
+    app.kubernetes.io/part-of: cloud-identity-system
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: cloud-identity-app
+  template:
+    metadata:
+      labels:
+        app: cloud-identity-app
+    spec:
+      containers:
+        - name: cloud-identity-app
+          image: cloudidentity/cloud-identity-fingerprinting:1.0.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+              name: http
+          envFrom:
+            - configMapRef:
+                name: cloud-identity-config
+            - secretRef:
+                name: cloud-identity-secrets
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "1024Mi"
+              cpu: "1000m"
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 15
+            periodSeconds: 5

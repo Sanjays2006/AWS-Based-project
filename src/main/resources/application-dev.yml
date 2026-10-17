@@ -1,0 +1,27 @@
+# ===================================================
+# Development Profile Overrides
+# These settings override application.yml for dev
+# ===================================================
+spring:
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+  flyway:
+    validate-on-migrate: false
+
+logging:
+  level:
+    com.cloudidentity: DEBUG
+    org.springframework.security: INFO
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+
+app:
+  scheduler:
+    cloudtrail-enabled: false
+    s3-enabled: false
+    fingerprint-enabled: false
+    report-enabled: false
+    baseline-enabled: false

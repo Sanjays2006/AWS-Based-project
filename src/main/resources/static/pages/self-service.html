@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Self-Service Security Portal | Cloud Identity</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="/css/variables.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="stylesheet" href="/css/sidebar.css">
+    <link rel="stylesheet" href="/css/components.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <a href="/pages/dashboard.html" class="sidebar-logo">
+                <div class="sidebar-logo-icon"><i class="bi bi-shield-lock-fill"></i></div>
+                <div class="sidebar-logo-text">
+                    <span class="sidebar-logo-title">CloudIdentity</span>
+                    <span class="sidebar-logo-subtitle">Fingerprint Engine</span>
+                </div>
+            </a>
+
+            <nav class="sidebar-nav">
+                <div class="nav-section-title">Overview</div>
+                <a href="/pages/dashboard.html" class="nav-item">
+                    <i class="bi bi-grid-1x2-fill"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="/pages/investigation.html" class="nav-item">
+                    <i class="bi bi-search-heart"></i>
+                    <span>Investigation Console</span>
+                </a>
+
+                <div class="nav-section-title">Security & Risk</div>
+                <a href="/pages/anomalies.html" class="nav-item">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    <span>Anomalies & Alerts</span>
+                </a>
+                <a href="/pages/identities.html" class="nav-item">
+                    <i class="bi bi-person-badge-fill"></i>
+                    <span>IAM Identities</span>
+                </a>
+                <a href="/pages/rules.html" class="nav-item">
+                    <i class="bi bi-sliders"></i>
+                    <span>Risk Rules</span>
+                </a>
+
+                <div class="nav-section-title">Logs & Self Service</div>
+                <a href="/pages/activity-logs.html" class="nav-item">
+                    <i class="bi bi-journal-code"></i>
+                    <span>CloudTrail Logs</span>
+                </a>
+                <a href="/pages/self-service.html" class="nav-item active">
+                    <i class="bi bi-person-circle"></i>
+                    <span>Self-Service Portal</span>
+                </a>
+                <a href="/pages/users.html" class="nav-item admin-only">
+                    <i class="bi bi-people-fill"></i>
+                    <span>User Management</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="sidebar-user" onclick="handleLogout()">
+                    <div class="sidebar-avatar" id="navAvatar">A</div>
+                    <div style="flex:1; overflow:hidden;">
+                        <div class="sidebar-username" id="navUsername">Admin</div>
+                        <div class="sidebar-role" id="navRole">ADMIN</div>
+                    </div>
+                    <i class="bi bi-box-arrow-right" style="color: var(--text-muted);"></i>
+                </div>
+            </div>
+        </aside>
+
+        <div class="main-wrapper">
+            <header class="navbar">
+                <div style="display:flex; align-items:center; gap:12px;">
+                    <button class="sidebar-toggle" id="sidebarToggle"><i class="bi bi-list"></i></button>
+                    <div class="navbar-breadcrumb">
+                        <span>CloudIdentity</span> / <span class="current">Self-Service Security</span>
+                    </div>
+                </div>
+            </header>
+
+            <main class="main-content">
+                <div class="page-header">
+                    <div>
+                        <h1 class="page-title">Self-Service Security Portal</h1>
+                        <p class="page-subtitle">Verify pending security warnings (Was it me / Not me?), manage active sessions, and devices.</p>
+                    </div>
+                </div>
+
+                <!-- Section 1: Security Warning Responses -->
+                <div class="card" style="margin-bottom:24px;">
+                    <div class="card-header">
+                        <div class="card-title"><i class="bi bi-shield-exclamation"></i> Security Verification Warnings</div>
+                    </div>
+                    <div id="alertsContainer">
+                        <p class="text-center" style="padding:20px;">Loading security alerts...</p>
+                    </div>
+                </div>
+
+                <!-- Section 2: Active Sessions & Devices -->
+                <div class="grid-2">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title"><i class="bi bi-laptop"></i> Active Sessions</div>
+                            <button onclick="terminateAllSessions()" class="btn btn-danger btn-sm">Terminate All</button>
+                        </div>
+                        <div class="data-table-wrapper">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>IP Address</th>
+                                        <th>Browser / OS</th>
+                                        <th>Login Time</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="sessionsTable"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title"><i class="bi bi-phone"></i> Registered Devices</div>
+                        </div>
+                        <div class="data-table-wrapper">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Device</th>
+                                        <th>Fingerprint</th>
+                                        <th>Trusted</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="devicesTable"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/components.js"></script>
+    <script src="/js/app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            loadSelfServiceData();
+        });
+
+        async function loadSelfServiceData() {
+            try {
+                UIUtils.showLoader();
+                const [alerts, sessions, devices] = await Promise.all([
+                    ApiService.getMyAlerts(),
+                    ApiService.getMySessions(),
+                    ApiService.getMyDevices()
+                ]);
+
+                // 1. Render Alerts
+                const container = document.getElementById('alertsContainer');
+                if (alerts && alerts.length > 0) {
+                    container.innerHTML = alerts.map(a => `
+                        <div class="alert alert-warning" style="display:flex; justify-content:space-between; align-items:center;">
+                            <div>
+                                <strong style="display:block; font-size:0.95rem;">${a.anomalyType}: ${a.description}</strong>
+                                <span style="font-size:0.75rem; opacity:0.8;">Detected at ${UIUtils.formatDate(a.createdAt)}</span>
+                            </div>
+                            <div style="display:flex; gap:10px;">
+                                <button onclick="respondToAlert(${a.id}, 'WAS_ME')" class="btn btn-secondary btn-sm"><i class="bi bi-check-circle"></i> Was Me</button>
+                                <button onclick="respondToAlert(${a.id}, 'NOT_ME')" class="btn btn-danger btn-sm"><i class="bi bi-x-circle"></i> NOT Me!</button>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    container.innerHTML = '<div class="empty-state"><p>No pending security verifications. Your account is secure!</p></div>';
+                }
+
+                // 2. Render Sessions
+                const sessTable = document.getElementById('sessionsTable');
+                sessTable.innerHTML = sessions.map(s => `
+                    <tr>
+                        <td class="mono">${s.ipAddress}</td>
+                        <td>${s.browser} (${s.operatingSystem})</td>
+                        <td>${UIUtils.formatDate(s.loginAt)}</td>
+                        <td>
+                            <button onclick="terminateSession(${s.id})" class="btn btn-ghost btn-sm" style="color:var(--accent-danger);">Terminate</button>
+                        </td>
+                    </tr>
+                `).join('');
+
+                // 3. Render Devices
+                const devTable = document.getElementById('devicesTable');
+                devTable.innerHTML = devices.map(d => `
+                    <tr>
+                        <td><strong>${d.browser}</strong> on ${d.operatingSystem}</td>
+                        <td class="arn-text">${d.deviceFingerprint.substring(0, 16)}...</td>
+                        <td>${d.isTrusted ? '<span class="risk-badge LOW">Trusted</span>' : '<span class="risk-badge MEDIUM">New</span>'}</td>
+                    </tr>
+                `).join('');
+
+            } catch (err) {
+                Toast.error('Failed to load self-service details: ' + err.message);
+            } finally {
+                UIUtils.hideLoader();
+            }
+        }
+
+        async function respondToAlert(id, action) {
+            try {
+                await ApiService.respondToAlert(id, action);
+                Toast.success(`Verification action '${action}' recorded`);
+                loadSelfServiceData();
+            } catch (e) {
+                Toast.error('Failed to submit response: ' + e.message);
+            }
+        }
+
+        async function terminateSession(id) {
+            try {
+                await ApiService.terminateSession(id);
+                Toast.success('Session terminated');
+                loadSelfServiceData();
+            } catch (e) {
+                Toast.error('Error terminating session');
+            }
+        }
+
+        async function terminateAllSessions() {
+            try {
+                await ApiService.terminateAllSessions();
+                Toast.success('All active sessions invalidated');
+                loadSelfServiceData();
+            } catch (e) {
+                Toast.error('Error terminating sessions');
+            }
+        }
+    </script>
+</body>
+</html>

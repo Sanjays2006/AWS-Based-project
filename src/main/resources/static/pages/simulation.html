@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attack Simulation Console | Cloud Identity</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="/css/variables.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="stylesheet" href="/css/sidebar.css">
+    <link rel="stylesheet" href="/css/components.css">
+    <link rel="stylesheet" href="/css/dashboard.css">
+    <style>
+        .scenario-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .scenario-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            transition: transform 0.2s, border-color 0.2s;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .scenario-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--color-primary);
+        }
+        .scenario-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .scenario-desc {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+            line-height: 1.4;
+        }
+        .scenario-meta {
+            font-size: 0.75rem;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 0.5rem 0.75rem;
+            border-radius: var(--radius-md);
+            margin-bottom: 1rem;
+        }
+        .live-output-panel {
+            background: #090d16;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            font-family: 'Fira Code', 'Courier New', monospace;
+            font-size: 0.875rem;
+            min-height: 250px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .log-entry {
+            margin-bottom: 0.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .log-entry.CRITICAL { color: #ff4d4d; }
+        .log-entry.HIGH { color: #ff9933; }
+        .log-entry.SUCCESS { color: #00cc66; }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <a href="/pages/dashboard.html" class="sidebar-logo">
+                <div class="sidebar-logo-icon"><i class="bi bi-shield-lock-fill"></i></div>
+                <div class="sidebar-logo-text">
+                    <span class="sidebar-logo-title">CloudIdentity</span>
+                    <span class="sidebar-logo-subtitle">Fingerprint Engine</span>
+                </div>
+            </a>
+            <nav class="sidebar-nav">
+                <div class="nav-section-title">Overview</div>
+                <a href="/pages/dashboard.html" class="nav-item">
+                    <i class="bi bi-grid-1x2-fill"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="/pages/investigation.html" class="nav-item">
+                    <i class="bi bi-search-heart"></i>
+                    <span>Investigation Console</span>
+                </a>
+                <div class="nav-section-title">Security & Risk</div>
+                <a href="/pages/anomalies.html" class="nav-item">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    <span>Anomalies</span>
+                </a>
+                <a href="/pages/identities.html" class="nav-item">
+                    <i class="bi bi-person-badge-fill"></i>
+                    <span>IAM Identities</span>
+                </a>
+                <a href="/pages/rules.html" class="nav-item">
+                    <i class="bi bi-sliders"></i>
+                    <span>Risk Rules</span>
+                </a>
+                <div class="nav-section-title">Demo & Config</div>
+                <a href="/pages/simulation.html" class="nav-item active">
+                    <i class="bi bi-play-circle-fill"></i>
+                    <span>Attack Simulation</span>
+                </a>
+                <a href="/pages/policies.html" class="nav-item">
+                    <i class="bi bi-shield-check"></i>
+                    <span>Response Policies</span>
+                </a>
+                <a href="/pages/aws-accounts.html" class="nav-item">
+                    <i class="bi bi-cloud-check-fill"></i>
+                    <span>AWS Accounts</span>
+                </a>
+                <a href="/pages/analytics.html" class="nav-item">
+                    <i class="bi bi-graph-up-arrow"></i>
+                    <span>Analytics</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content area -->
+        <main class="main-content">
+            <header class="topbar">
+                <div class="topbar-title">
+                    <h1>Attack Simulation Console</h1>
+                    <p class="subtitle">Simulate realistic CloudTrail attack scenarios live for college viva demonstration</p>
+                </div>
+            </header>
+
+            <div class="content-wrapper">
+                <div class="scenario-grid" id="scenarioGrid">
+                    <!-- Loaded dynamically via JS -->
+                </div>
+
+                <div class="glass-card mt-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5><i class="bi bi-terminal-fill me-2"></i>Live Simulation Output Feed</h5>
+                        <button class="btn btn-sm btn-outline-secondary" onclick="clearLogs()"><i class="bi bi-trash"></i> Clear Feed</button>
+                    </div>
+                    <div class="live-output-panel" id="outputPanel">
+                        <div class="log-entry SUCCESS">[SYSTEM] Simulation Engine Ready. Select an attack scenario above to launch live evaluation pipeline.</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', loadScenarios);
+
+        async function loadScenarios() {
+            try {
+                const scenarios = await ApiService.request('/simulation/scenarios');
+                const grid = document.getElementById('scenarioGrid');
+                grid.innerHTML = scenarios.map(s => `
+                    <div class="scenario-card">
+                        <div>
+                            <div class="scenario-title">
+                                <i class="bi bi-bug-fill text-warning"></i> ${s.name}
+                            </div>
+                            <div class="scenario-desc">${s.description}</div>
+                            <div class="scenario-meta">
+                                <div><strong>Target Rules:</strong> ${s.targetRule}</div>
+                                <div><strong>Expected Severity:</strong> <span class="badge ${s.expectedSeverity === 'CRITICAL' ? 'bg-danger' : 'bg-warning'}">${s.expectedSeverity}</span></div>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary w-100 mt-2" onclick="runScenario('${s.code}')">
+                            <i class="bi bi-play-fill me-1"></i> Launch Attack
+                        </button>
+                    </div>
+                `).join('');
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function runScenario(code) {
+            logOutput(`[ATTACK] Launching simulation scenario: ${code}...`);
+            try {
+                const result = await ApiService.request(`/simulation/run/${code}`, { method: 'POST' });
+                logOutput(`[RESULT] Scenario: ${result.scenario} | Target: ${result.identity}`);
+                logOutput(`[SCORE] Calculated Risk Score: ${result.calculatedRiskScore} (${result.riskLevel}) | Rules Fired: ${result.triggeredRulesCount}`, result.riskLevel);
+                
+                if (result.triggeredRules && result.triggeredRules.length > 0) {
+                    result.triggeredRules.forEach(r => {
+                        logOutput(`  └─ Triggered: [${r.ruleCode}] (+${r.weight}) - ${r.detail}`, result.riskLevel);
+                    });
+                }
+            } catch (err) {
+                logOutput(`[ERROR] Simulation failed: ${err.message}`, 'CRITICAL');
+            }
+        }
+
+        function logOutput(msg, level = 'SUCCESS') {
+            const panel = document.getElementById('outputPanel');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${level}`;
+            entry.innerText = `[${new Date().toLocaleTimeString()}] ${msg}`;
+            panel.appendChild(entry);
+            panel.scrollTop = panel.scrollHeight;
+        }
+
+        function clearLogs() {
+            document.getElementById('outputPanel').innerHTML = '<div class="log-entry SUCCESS">[SYSTEM] Simulation Feed Cleared.</div>';
+        }
+    </script>
+</body>
+</html>

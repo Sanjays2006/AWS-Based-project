@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Investigation Console | Cloud Identity</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="/css/variables.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="stylesheet" href="/css/sidebar.css">
+    <link rel="stylesheet" href="/css/components.css">
+    <link rel="stylesheet" href="/css/dashboard.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <a href="/pages/dashboard.html" class="sidebar-logo">
+                <div class="sidebar-logo-icon"><i class="bi bi-shield-lock-fill"></i></div>
+                <div class="sidebar-logo-text">
+                    <span class="sidebar-logo-title">CloudIdentity</span>
+                    <span class="sidebar-logo-subtitle">Fingerprint Engine</span>
+                </div>
+            </a>
+
+            <nav class="sidebar-nav">
+                <div class="nav-section-title">Overview</div>
+                <a href="/pages/dashboard.html" class="nav-item">
+                    <i class="bi bi-grid-1x2-fill"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="/pages/investigation.html" class="nav-item active">
+                    <i class="bi bi-search-heart"></i>
+                    <span>Investigation Console</span>
+                </a>
+
+                <div class="nav-section-title">Security & Risk</div>
+                <a href="/pages/anomalies.html" class="nav-item">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    <span>Anomalies & Alerts</span>
+                </a>
+                <a href="/pages/identities.html" class="nav-item">
+                    <i class="bi bi-person-badge-fill"></i>
+                    <span>IAM Identities</span>
+                </a>
+                <a href="/pages/rules.html" class="nav-item">
+                    <i class="bi bi-sliders"></i>
+                    <span>Risk Rules</span>
+                </a>
+
+                <div class="nav-section-title">Demo & Config</div>
+                <a href="/pages/simulation.html" class="nav-item">
+                    <i class="bi bi-play-circle-fill"></i>
+                    <span>Attack Simulation</span>
+                </a>
+                <a href="/pages/policies.html" class="nav-item">
+                    <i class="bi bi-shield-check"></i>
+                    <span>Response Policies</span>
+                </a>
+                <a href="/pages/aws-accounts.html" class="nav-item">
+                    <i class="bi bi-cloud-check-fill"></i>
+                    <span>AWS Accounts</span>
+                </a>
+                <a href="/pages/analytics.html" class="nav-item">
+                    <i class="bi bi-graph-up-arrow"></i>
+                    <span>Analytics</span>
+                </a>
+
+                <div class="nav-section-title">Logs & Self Service</div>
+                <a href="/pages/activity-logs.html" class="nav-item">
+                    <i class="bi bi-journal-code"></i>
+                    <span>CloudTrail Logs</span>
+                </a>
+                <a href="/pages/self-service.html" class="nav-item">
+                    <i class="bi bi-person-circle"></i>
+                    <span>Self-Service Portal</span>
+                </a>
+                <a href="/pages/users.html" class="nav-item admin-only">
+                    <i class="bi bi-people-fill"></i>
+                    <span>User Management</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="sidebar-user" onclick="handleLogout()">
+                    <div class="sidebar-avatar" id="navAvatar">A</div>
+                    <div style="flex:1; overflow:hidden;">
+                        <div class="sidebar-username" id="navUsername">Admin</div>
+                        <div class="sidebar-role" id="navRole">ADMIN</div>
+                    </div>
+                    <i class="bi bi-box-arrow-right" style="color: var(--text-muted);"></i>
+                </div>
+            </div>
+        </aside>
+
+        <div class="main-wrapper">
+            <header class="navbar">
+                <div style="display:flex; align-items:center; gap:12px;">
+                    <button class="sidebar-toggle" id="sidebarToggle"><i class="bi bi-list"></i></button>
+                    <div class="navbar-breadcrumb">
+                        <span>CloudIdentity</span> / <span class="current">Investigation Console</span>
+                    </div>
+                </div>
+            </header>
+
+            <main class="main-content">
+                <div class="page-header">
+                    <div>
+                        <h1 class="page-title">Identity Investigation Console</h1>
+                        <p class="page-subtitle">Deep forensic analysis of identity activity timelines, triggered rules, and risk explanations.</p>
+                    </div>
+                    <div style="display:flex; gap:10px;">
+                        <select id="identitySelect" class="form-control" style="width:260px;" onchange="loadInvestigation(this.value)">
+                            <option value="">Select IAM Identity to Investigate...</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="investigationContainer" style="display:none;">
+                    <!-- Top Summary Card: Identity Details & Risk Score Meter -->
+                    <div class="grid-2" style="margin-bottom:24px;">
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="card-title"><i class="bi bi-person-badge"></i> Target Identity Details</div>
+                                <span id="riskBadgeSlot"></span>
+                            </div>
+                            <table class="data-table">
+                                <tr><td>Identity Name:</td><td id="invName" class="font-bold">N/A</td></tr>
+                                <tr><td>ARN:</td><td id="invArn" class="arn-text">N/A</td></tr>
+                                <tr><td>Type:</td><td id="invType">N/A</td></tr>
+                                <tr><td>Account ID:</td><td id="invAccount">N/A</td></tr>
+                                <tr><td>Monitoring Status:</td><td id="invStatus">Active</td></tr>
+                            </table>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="card-title"><i class="bi bi-speedometer2"></i> Calculated Weighted Risk Score</div>
+                            </div>
+                            <div class="risk-meter-container">
+                                <div class="risk-meter">
+                                    <svg viewBox="0 0 100 50">
+                                        <path class="risk-meter-track" d="M 10 50 A 40 40 0 0 1 90 50"></path>
+                                        <path id="meterFill" class="risk-meter-fill LOW" d="M 10 50 A 40 40 0 0 1 90 50" stroke-dasharray="126" stroke-dashoffset="126"></path>
+                                    </svg>
+                                    <div class="risk-meter-center">
+                                        <div class="risk-score-value" id="scoreValue">0</div>
+                                        <div class="risk-score-label">Risk Score</div>
+                                    </div>
+                                </div>
+                                <p id="riskExplanation" style="font-size:0.8125rem; color:var(--text-secondary); text-align:center;"></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recommended Actions Card -->
+                    <div class="card" style="margin-bottom:24px;">
+                        <div class="card-header">
+                            <div class="card-title"><i class="bi bi-shield-check"></i> Automated Security Recommendations</div>
+                        </div>
+                        <ul id="recommendationsList" style="padding-left:20px; color:var(--text-secondary); font-size:0.875rem;"></ul>
+                    </div>
+
+                    <!-- Activity Timeline & CloudTrail Events -->
+                    <div class="grid-2">
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="card-title"><i class="bi bi-clock-history"></i> Activity & Threat Timeline</div>
+                            </div>
+                            <div id="timelineContainer" class="timeline"></div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="card-title"><i class="bi bi-list-columns"></i> Recent CloudTrail Events</div>
+                            </div>
+                            <div class="data-table-wrapper">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Event</th>
+                                            <th>Service</th>
+                                            <th>IP Address</th>
+                                            <th>Time</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="cloudtrailEventsTable"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="emptySelectState" class="card">
+                    <div class="empty-state">
+                        <i class="bi bi-search"></i>
+                        <h4>No Identity Selected</h4>
+                        <p>Select an IAM identity from the dropdown above to load forensic investigation details.</p>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/components.js"></script>
+    <script src="/js/app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            await populateIdentityDropdown();
+            
+            // Check if URL has ?identityId=
+            const urlParams = new URLSearchParams(window.location.search);
+            const idParam = urlParams.get('identityId');
+            if (idParam) {
+                document.getElementById('identitySelect').value = idParam;
+                loadInvestigation(idParam);
+            }
+        });
+
+        async function populateIdentityDropdown() {
+            try {
+                const res = await ApiService.getIamIdentities({ size: 100 });
+                const select = document.getElementById('identitySelect');
+                if (res.content) {
+                    res.content.forEach(item => {
+                        const opt = document.createElement('option');
+                        opt.value = item.id;
+                        opt.textContent = `${item.identityName} (${item.arn})`;
+                        select.appendChild(opt);
+                    });
+                }
+            } catch (e) {
+                Toast.error('Could not populate identity list');
+            }
+        }
+
+        async function loadInvestigation(identityId) {
+            if (!identityId) {
+                document.getElementById('investigationContainer').style.display = 'none';
+                document.getElementById('emptySelectState').style.display = 'block';
+                return;
+            }
+
+            try {
+                UIUtils.showLoader();
+                const data = await ApiService.getInvestigationData(identityId);
+
+                document.getElementById('emptySelectState').style.display = 'none';
+                document.getElementById('investigationContainer').style.display = 'block';
+
+                // 1. Identity Info
+                document.getElementById('invName').textContent = data.identity.identityName;
+                document.getElementById('invArn').textContent = data.identity.arn;
+                document.getElementById('invType').textContent = data.identity.identityType;
+                document.getElementById('invAccount').textContent = data.identity.accountId;
+                document.getElementById('riskBadgeSlot').innerHTML = UIUtils.formatRiskBadge(data.currentRiskScore ? data.currentRiskScore.riskLevel : 'LOW');
+
+                // 2. Risk Gauge
+                const score = data.currentRiskScore ? data.currentRiskScore.score : 0;
+                const level = data.currentRiskScore ? data.currentRiskScore.riskLevel : 'LOW';
+                document.getElementById('scoreValue').textContent = score;
+                document.getElementById('riskExplanation').textContent = data.riskExplanation;
+
+                const fill = document.getElementById('meterFill');
+                fill.className = `risk-meter-fill ${level}`;
+                const offset = 126 - (126 * (score / 100));
+                fill.style.strokeDashoffset = offset;
+
+                // 3. Recommendations
+                const recList = document.getElementById('recommendationsList');
+                recList.innerHTML = data.recommendedActions.map(r => `<li style="margin-bottom:6px;">${r}</li>`).join('');
+
+                // 4. Timeline
+                const timeline = document.getElementById('timelineContainer');
+                timeline.innerHTML = data.activityTimeline.map(item => `
+                    <div class="timeline-item">
+                        <div class="timeline-dot ${item.severity || 'info'}"></div>
+                        <div class="timeline-time">${UIUtils.formatDate(item.timestamp)}</div>
+                        <div class="timeline-title">${item.title}</div>
+                        <div class="timeline-desc">${item.description}</div>
+                    </div>
+                `).join('');
+
+                // 5. CloudTrail Events Table
+                const ctTable = document.getElementById('cloudtrailEventsTable');
+                ctTable.innerHTML = data.recentCloudTrailEvents.map(e => `
+                    <tr>
+                        <td><strong>${e.eventName}</strong></td>
+                        <td>${e.awsService}</td>
+                        <td class="mono">${e.sourceIp}</td>
+                        <td>${UIUtils.formatDate(e.eventTime)}</td>
+                    </tr>
+                `).join('');
+
+            } catch (err) {
+                Toast.error('Error loading investigation: ' + err.message);
+            } finally {
+                UIUtils.hideLoader();
+            }
+        }
+    </script>
+</body>
+</html>

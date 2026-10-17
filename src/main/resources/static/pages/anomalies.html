@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anomalies & Alerts | Cloud Identity</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="/css/variables.css">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="stylesheet" href="/css/sidebar.css">
+    <link rel="stylesheet" href="/css/components.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <a href="/pages/dashboard.html" class="sidebar-logo">
+                <div class="sidebar-logo-icon"><i class="bi bi-shield-lock-fill"></i></div>
+                <div class="sidebar-logo-text">
+                    <span class="sidebar-logo-title">CloudIdentity</span>
+                    <span class="sidebar-logo-subtitle">Fingerprint Engine</span>
+                </div>
+            </a>
+
+            <nav class="sidebar-nav">
+                <div class="nav-section-title">Overview</div>
+                <a href="/pages/dashboard.html" class="nav-item">
+                    <i class="bi bi-grid-1x2-fill"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="/pages/investigation.html" class="nav-item">
+                    <i class="bi bi-search-heart"></i>
+                    <span>Investigation Console</span>
+                </a>
+
+                <div class="nav-section-title">Security & Risk</div>
+                <a href="/pages/anomalies.html" class="nav-item active">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    <span>Anomalies & Alerts</span>
+                </a>
+                <a href="/pages/identities.html" class="nav-item">
+                    <i class="bi bi-person-badge-fill"></i>
+                    <span>IAM Identities</span>
+                </a>
+                <a href="/pages/rules.html" class="nav-item">
+                    <i class="bi bi-sliders"></i>
+                    <span>Risk Rules</span>
+                </a>
+
+                <div class="nav-section-title">Logs & Self Service</div>
+                <a href="/pages/activity-logs.html" class="nav-item">
+                    <i class="bi bi-journal-code"></i>
+                    <span>CloudTrail Logs</span>
+                </a>
+                <a href="/pages/self-service.html" class="nav-item">
+                    <i class="bi bi-person-circle"></i>
+                    <span>Self-Service Portal</span>
+                </a>
+                <a href="/pages/users.html" class="nav-item admin-only">
+                    <i class="bi bi-people-fill"></i>
+                    <span>User Management</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="sidebar-user" onclick="handleLogout()">
+                    <div class="sidebar-avatar" id="navAvatar">A</div>
+                    <div style="flex:1; overflow:hidden;">
+                        <div class="sidebar-username" id="navUsername">Admin</div>
+                        <div class="sidebar-role" id="navRole">ADMIN</div>
+                    </div>
+                    <i class="bi bi-box-arrow-right" style="color: var(--text-muted);"></i>
+                </div>
+            </div>
+        </aside>
+
+        <div class="main-wrapper">
+            <header class="navbar">
+                <div style="display:flex; align-items:center; gap:12px;">
+                    <button class="sidebar-toggle" id="sidebarToggle"><i class="bi bi-list"></i></button>
+                    <div class="navbar-breadcrumb">
+                        <span>CloudIdentity</span> / <span class="current">Anomalies & Alerts</span>
+                    </div>
+                </div>
+            </header>
+
+            <main class="main-content">
+                <div class="page-header">
+                    <div>
+                        <h1 class="page-title">Detected Threat Anomalies</h1>
+                        <p class="page-subtitle">Real-time listing of behavior vector anomalies and triggered rule violations.</p>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-bottom:20px;">
+                    <div style="display:flex; gap:12px; flex-wrap:wrap;">
+                        <select id="severityFilter" class="form-control" style="width:160px;" onchange="loadAnomalies()">
+                            <option value="">All Severities</option>
+                            <option value="CRITICAL">CRITICAL</option>
+                            <option value="HIGH">HIGH</option>
+                            <option value="MEDIUM">MEDIUM</option>
+                            <option value="LOW">LOW</option>
+                        </select>
+
+                        <select id="statusFilter" class="form-control" style="width:180px;" onchange="loadAnomalies()">
+                            <option value="">All Statuses</option>
+                            <option value="false" selected>Unacknowledged</option>
+                            <option value="true">Acknowledged</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="data-table-wrapper">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Severity</th>
+                                    <th>Identity</th>
+                                    <th>Anomaly Type</th>
+                                    <th>Description</th>
+                                    <th>Risk Delta</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="anomaliesTable">
+                                <tr><td colspan="7" class="text-center">Loading anomalies...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/components.js"></script>
+    <script src="/js/app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            loadAnomalies();
+        });
+
+        async function loadAnomalies() {
+            try {
+                UIUtils.showLoader();
+                const severity = document.getElementById('severityFilter').value;
+                const status = document.getElementById('statusFilter').value;
+
+                const params = { size: 50 };
+                if (severity) params.severity = severity;
+                if (status !== '') params.isAcknowledged = status;
+
+                const res = await ApiService.getAnomalies(params);
+                const tableBody = document.getElementById('anomaliesTable');
+
+                if (res.content && res.content.length > 0) {
+                    tableBody.innerHTML = res.content.map(item => `
+                        <tr>
+                            <td>${UIUtils.formatRiskBadge(item.severity)}</td>
+                            <td>
+                                <strong>${item.identityName}</strong><br>
+                                ${UIUtils.formatArn(item.identityArn)}
+                            </td>
+                            <td><strong>${item.anomalyType}</strong></td>
+                            <td style="max-width:300px;">${item.description}</td>
+                            <td><span class="mono" style="color:var(--accent-warning);">+${item.riskDelta}</span></td>
+                            <td>
+                                ${item.isAcknowledged 
+                                    ? `<span class="tag-chip" style="background:rgba(16,185,129,0.1); color:var(--accent-green);"><i class="bi bi-check-all"></i> Acknowledged</span>` 
+                                    : `<span class="tag-chip" style="background:rgba(239,68,68,0.1); color:var(--accent-danger);"><i class="bi bi-exclamation-circle"></i> Pending</span>`}
+                            </td>
+                            <td>
+                                <div style="display:flex; gap:6px;">
+                                    <a href="/pages/investigation.html?identityId=${item.iamIdentityId}" class="btn btn-secondary btn-sm" title="Investigate">
+                                        <i class="bi bi-search"></i>
+                                    </a>
+                                    ${!item.isAcknowledged ? `
+                                        <button onclick="acknowledgeAnomaly(${item.id})" class="btn btn-ghost btn-sm" title="Mark Acknowledged">
+                                            <i class="bi bi-check-lg"></i>
+                                        </button>
+                                    ` : ''}
+                                </div>
+                            </td>
+                        </tr>
+                    `).join('');
+                } else {
+                    tableBody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><p>No anomaly events found for selected filters.</p></div></td></tr>';
+                }
+            } catch (err) {
+                Toast.error('Failed to load anomaly list: ' + err.message);
+            } finally {
+                UIUtils.hideLoader();
+            }
+        }
+
+        async function acknowledgeAnomaly(id) {
+            try {
+                await ApiService.acknowledgeAnomaly(id);
+                Toast.success('Anomaly acknowledged');
+                loadAnomalies();
+            } catch (err) {
+                Toast.error('Could not acknowledge anomaly: ' + err.message);
+            }
+        }
+    </script>
+</body>
+</html>

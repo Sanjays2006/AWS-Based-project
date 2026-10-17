@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cloud-identity-config
+  namespace: cloud-identity
+data:
+  SPRING_PROFILES_ACTIVE: "prod"
+  SPRING_DATASOURCE_URL: "jdbc:postgresql://postgres-service:5432/cloudidentity_db"
+  AWS_REGION: "us-east-1"
+  SPRING_DATA_REDIS_HOST: "redis-service"
+  SPRING_DATA_REDIS_PORT: "6379"
